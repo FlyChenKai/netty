@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+// 非堆内存池
 final class PooledDirectByteBuf extends PooledByteBuf<ByteBuffer> {
 
     private static final ObjectPool<PooledDirectByteBuf> RECYCLER = ObjectPool.newPool(
