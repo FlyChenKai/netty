@@ -210,14 +210,16 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         @Override
         @SuppressWarnings("unchecked")
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
+            // 得到新连接对应的channel
             final Channel child = (Channel) msg;
-
+            // 将serveBootStrap设置的childHandler设置到pipeline
             child.pipeline().addLast(childHandler);
-
+            // 将serveBootStrap设置的childOptions、childAttrs设置到channel
             setChannelOptions(child, childOptions, logger);
             setAttributes(child, childAttrs);
 
             try {
+                // 从workGroup中选一个eventLoop，将channel注册到上面
                 childGroup.register(child).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
