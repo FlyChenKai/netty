@@ -41,6 +41,7 @@ public final class EchoServer {
         final SslContext sslCtx = ServerUtil.buildSslContext();
 
         // Configure the server.
+        // new NioEventLoopGroup的过程中会创建selector
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         final EchoServerHandler serverHandler = new EchoServerHandler();
@@ -62,6 +63,7 @@ public final class EchoServer {
                  }
              });
 
+            // sync代表阻塞至启动完成
             // Start the server.
             ChannelFuture f = b.bind(PORT).sync();
 

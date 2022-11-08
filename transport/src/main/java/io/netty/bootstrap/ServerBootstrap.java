@@ -129,25 +129,31 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
 
     @Override
     void init(Channel channel) {
+        // 向channel填充之前配置的属性
         setChannelOptions(channel, newOptionsArray(), logger);
         setAttributes(channel, newAttributesArray());
 
         ChannelPipeline p = channel.pipeline();
-
+        // 以下四个属性用于初始化socketChannel，即childEventLoopGroup
         final EventLoopGroup currentChildGroup = childGroup;
         final ChannelHandler currentChildHandler = childHandler;
         final Entry<ChannelOption<?>, Object>[] currentChildOptions = newOptionsArray(childOptions);
         final Entry<AttributeKey<?>, Object>[] currentChildAttrs = newAttributesArray(childAttrs);
 
+        // 向serverSocketChannel的pipeline添加一个ChannelInitializer
+        // 一个抽象类，且是一个入站的 handler。
+        // 简化channel注册完毕后的初始化操作，完成初始化动作之后会从 pipeline 中被移除
         p.addLast(new ChannelInitializer<Channel>() {
             @Override
             public void initChannel(final Channel ch) {
                 final ChannelPipeline pipeline = ch.pipeline();
+                // 把之前serveBootStrap配置的handler添加到pipeline
                 ChannelHandler handler = config.handler();
                 if (handler != null) {
                     pipeline.addLast(handler);
                 }
-
+                // 异步添加ServerBootstrapAcceptor到pipeline，负责接收、创建客户端连接后，对连接进行初始化
+                // 为什么要是异步的呢？如何保证ServerBootstrapAcceptor被加到pipeline最后，不影响自定义handler
                 ch.eventLoop().execute(new Runnable() {
                     @Override
                     public void run() {

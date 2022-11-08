@@ -70,8 +70,11 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
      */
     protected AbstractChannel(Channel parent) {
         this.parent = parent;
+        // 创建id，channel的标识
         id = newId();
+        // 创建unsafe，用来操作底层数据读写
         unsafe = newUnsafe();
+        // pipeline，handler的编排
         pipeline = newChannelPipeline();
     }
 
@@ -475,7 +478,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             }
 
             AbstractChannel.this.eventLoop = eventLoop;
-
+            // 判断当前的线程是否在NioEventLoop中
             if (eventLoop.inEventLoop()) {
                 register0(promise);
             } else {
